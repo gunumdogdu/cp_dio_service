@@ -5,14 +5,14 @@ void main() {
   group('DioClient', () {
     final dioClient = DioClient('https://api.example.com');
     test('can make a GET request', () async {
-      final response = await dioClient.request(HttpMethod.GET, '/users');
+      final response = await dioClient.request(DioHttpMethod.GET, '/users');
 
       expect(response?.statusCode, 200);
     });
 
     test('can make a POST request', () async {
       final response = await dioClient.request(
-        HttpMethod.POST,
+        DioHttpMethod.POST,
         '/users',
         bodyParam: {'name': 'John Doe'},
       );
@@ -22,7 +22,7 @@ void main() {
 
     test('can make a PUT request', () async {
       final response = await dioClient.request(
-        HttpMethod.PUT,
+        DioHttpMethod.PUT,
         '/users/1',
         bodyParam: {'name': 'John Doe'},
       );
@@ -32,7 +32,7 @@ void main() {
 
     test('can make a DELETE request', () async {
       final response = await dioClient.request(
-        HttpMethod.DELETE,
+        DioHttpMethod.DELETE,
         '/users/1',
       );
 
@@ -41,7 +41,7 @@ void main() {
 
     test('can make a UPDATE request', () async {
       final response = await dioClient.request(
-        HttpMethod.UPDATE,
+        DioHttpMethod.UPDATE,
         '/users/1',
         bodyParam: {'name': 'John Doe'},
       );

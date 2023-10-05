@@ -7,7 +7,7 @@ import 'package:dio/dio.dart';
 import 'package:dio_http_cache/dio_http_cache.dart';
 import 'package:logger/logger.dart';
 
-enum HttpMethod { GET, POST, PUT, DELETE, UPDATE }
+enum DioHttpMethod { GET, POST, PUT, DELETE, UPDATE }
 
 class DioClient {
   final String baseUrl;
@@ -72,7 +72,7 @@ class DioClient {
   Options _options(Map<String, dynamic>? headerParam) => Options(headers: headerParam ?? {});
 
   Future<Response?> _sendRequest(
-    HttpMethod method,
+    DioHttpMethod method,
     String pathBody,
     Map<String, dynamic> bodyParam,
     Map<String, String>? headerParam,
@@ -83,7 +83,7 @@ class DioClient {
     try {
       Response response;
       switch (method) {
-        case HttpMethod.GET:
+        case DioHttpMethod.GET:
           response = await _dio.getUri(
             uri,
             options: buildCacheOptions(
@@ -94,13 +94,13 @@ class DioClient {
           );
 
           break;
-        case HttpMethod.POST:
+        case DioHttpMethod.POST:
           response = await _dio.postUri(uri, data: bodyParam, options: _options(headerParam));
           break;
-        case HttpMethod.DELETE:
+        case DioHttpMethod.DELETE:
           response = await _dio.deleteUri(uri, data: bodyParam, options: _options(headerParam));
           break;
-        case HttpMethod.PUT:
+        case DioHttpMethod.PUT:
           response = await _dio.putUri(uri, data: bodyParam, options: _options(headerParam));
           break;
 
@@ -114,7 +114,7 @@ class DioClient {
     }
   }
 
-  Future<Response?> request(HttpMethod method, String path,
+  Future<Response?> request(DioHttpMethod method, String path,
       {Map<String, dynamic> bodyParam = const {},
       Map<String, String>? headerParam,
       bool? forceRefresh,
