@@ -13,7 +13,7 @@ To use the `DioClient` class, you would first create a new instance of the class
 
 ```dart
 final dioClient = DioClient('https://api.example.com');
-
+```
 
 Once you have created a `DioClient` instance, you can use it to make HTTP requests by calling the `request()` method. The `request()` method takes the following parameters:
 
