@@ -135,13 +135,34 @@ class DioClient {
     }
   }
 
-  // Public method to make HTTP requests
-  Future<Response?> request(DioHttpMethod method, String path,
-      {Map<String, dynamic> bodyParam = const {},
-      Map<String, String>? headerParam,
-      bool? forceRefresh,
-      bool? openThread,
-      Function? onUnauthorized}) async {
+  /// Public method to make HTTP requests
+  /// [method] is the HTTP method to be used e.g. DioHttpMethod.GET
+  ///
+  /// [path] is the path of the API endpoint e.g. 'posts'
+  ///
+  /// [bodyParam] is the body of the request e.g. {"title": 'I am in love with someone.', "userId": "5"}
+  ///
+  /// [forceRefresh] is a boolean to force refresh the cache
+  ///
+  ///Example:
+  ///```dart
+  ///final response = await dioClient.request(
+  ///  DioHttpMethod.GET,
+  /// 'posts',
+  /// bodyParam: {"title": 'I am in love with someone.', "userId": "5"},
+  /// forceRefresh: true,
+  /// );
+  /// ```
+  /// Returns a Future<Response?> object
+  /// ```dart
+  Future<Response?> request(
+    DioHttpMethod method,
+    String path, {
+    Map<String, dynamic> bodyParam = const {},
+    Map<String, String>? headerParam,
+    bool? forceRefresh,
+    bool? openThread,
+  }) async {
     return await _sendRequest(method, path, bodyParam, headerParam, forceRefresh, openThread);
   }
 }
