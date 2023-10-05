@@ -38,7 +38,7 @@ The `response` variable will now contain a `Response` object with the response f
 
 The following example shows how to use the `DioClient` class to make a GET request to the `/users` endpoint and print the response to the console:
 
-dart
+``` dart
 import 'package:awesome_dio_service/awesome_dio_service.dart';
 
 void main() async {
@@ -52,7 +52,7 @@ void main() async {
     print('Error: ${response.statusCode}');
   }
 }
-
+```
 
 ## Caching
 
