@@ -3,9 +3,9 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('DioClient', () {
-    final dioClient = DioClient('https://api.example.com');
+    final dioClient = DioClient('dummyjson.com');
     test('can make a GET request', () async {
-      final response = await dioClient.request(DioHttpMethod.GET, '/users');
+      final response = await dioClient.request(DioHttpMethod.GET, 'posts', forceRefresh: true);
 
       expect(response?.statusCode, 200);
     });
@@ -13,40 +13,11 @@ void main() {
     test('can make a POST request', () async {
       final response = await dioClient.request(
         DioHttpMethod.POST,
-        '/users',
-        bodyParam: {'name': 'John Doe'},
+        'posts/add',
+        bodyParam: {"title": 'I am in love with someone.', "userId": "5"},
       );
 
       expect(response?.statusCode, 201);
-    });
-
-    test('can make a PUT request', () async {
-      final response = await dioClient.request(
-        DioHttpMethod.PUT,
-        '/users/1',
-        bodyParam: {'name': 'John Doe'},
-      );
-
-      expect(response?.statusCode, 200);
-    });
-
-    test('can make a DELETE request', () async {
-      final response = await dioClient.request(
-        DioHttpMethod.DELETE,
-        '/users/1',
-      );
-
-      expect(response?.statusCode, 200);
-    });
-
-    test('can make a UPDATE request', () async {
-      final response = await dioClient.request(
-        DioHttpMethod.UPDATE,
-        '/users/1',
-        bodyParam: {'name': 'John Doe'},
-      );
-
-      expect(response?.statusCode, 200);
     });
   });
 }

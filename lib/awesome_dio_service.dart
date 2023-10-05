@@ -105,7 +105,7 @@ class DioClient {
           break;
 
         default:
-          throw Exception('Method not implemented');
+          throw DioError(requestOptions: RequestOptions(path: pathBody), error: 'Method not found');
       }
       return response;
     } catch (e) {
