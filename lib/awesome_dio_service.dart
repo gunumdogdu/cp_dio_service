@@ -10,18 +10,27 @@ import 'package:logger/logger.dart';
 enum DioHttpMethod { GET, POST, PUT, DELETE, UPDATE }
 
 class DioClient {
+  static DioClient? _instance;
   final String baseUrl;
   final Dio _dio;
   final logger = Logger(printer: PrettyPrinter(methodCount: 0));
 
-  DioClient(this.baseUrl, {Function? onUnauthorized})
-      : _dio = Dio(
+  static DioClient instance(
+    String baseUrl, {
+    Function? onUnauthorized,
+  }) {
+    _instance ??= DioClient._internal(baseUrl, onUnauthorized: onUnauthorized);
+    return _instance!;
+  }
+
+  DioClient._internal(
+    this.baseUrl, {
+    Function? onUnauthorized,
+  }) : _dio = Dio(
           BaseOptions(
             baseUrl: baseUrl,
-            connectTimeout: 15000, // 15 seconds
-            receiveTimeout: 15000, // 15 seconds
-            sendTimeout: 15000, // 15 seconds
-            contentType: 'application/json',
+            connectTimeout: 30000,
+            receiveTimeout: 30000,
           ),
         ) {
     addInterceptors(onUnauthorized: onUnauthorized);
@@ -60,7 +69,6 @@ class DioClient {
         },
       ),
     );
-    //dio Logger
 
     _dio.interceptors.add(
       DioCacheManager(
@@ -118,7 +126,8 @@ class DioClient {
       {Map<String, dynamic> bodyParam = const {},
       Map<String, String>? headerParam,
       bool? forceRefresh,
-      bool? openThread}) async {
-    return _sendRequest(method, path, bodyParam, headerParam, forceRefresh, openThread);
+      bool? openThread,
+      Function? onUnauthorized}) async {
+    return await _sendRequest(method, path, bodyParam, headerParam, forceRefresh, openThread);
   }
 }

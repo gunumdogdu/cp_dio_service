@@ -3,7 +3,10 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('DioClient', () {
-    final dioClient = DioClient('dummyjson.com');
+    final dioClient = DioClient.instance(
+      'https://jsonplaceholder.typicode.com/',
+      onUnauthorized: () {},
+    );
     test('can make a GET request', () async {
       final response = await dioClient.request(DioHttpMethod.GET, 'posts', forceRefresh: true);
 
