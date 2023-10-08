@@ -3,8 +3,10 @@
 library cp_dio_client;
 
 import 'dart:io';
+import 'package:cp_dio_client/model/dio_base_model.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_http_cache/dio_http_cache.dart';
+import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
 
 // Enum to define HTTP methods
@@ -88,7 +90,7 @@ class DioClient {
   Options _options(Map<String, dynamic>? headerParam) => Options(headers: headerParam ?? {});
 
   // Method to send HTTP requests based on the specified method
-  Future<Response?> _sendRequest(
+  Future<DioBaseModel<T>> _sendRequest<T>(
     DioHttpMethod method,
     String pathBody,
     Map<String, dynamic> bodyParam,
@@ -98,40 +100,75 @@ class DioClient {
   ) async {
     var uri = Uri.https(baseUrl, (pathBody.isNotEmpty ? '/$pathBody' : ''));
     try {
-      Response response;
+      Response? response;
+      DioBaseModel<T>? dioBaseModel;
+
       switch (method) {
         case DioHttpMethod.GET:
           // Send GET request with caching options
-          response = await _dio.getUri(
-            uri,
-            options: buildCacheOptions(
+          response = await _dio.getUri(uri,
+/*             options: buildCacheOptions(
               const Duration(days: 7),
               forceRefresh: forceRefresh ?? true,
               options: _options(headerParam),
-            ),
-          );
+            ), */
+              options: _options(headerParam));
+
+          if (response.statusCode == HttpStatus.ok) {
+            if (openThread != null && openThread) {
+              final responseModel = await compute(_parseData<T>, response.data);
+
+              dioBaseModel = DioBaseModel<T>(
+                model: responseModel,
+                response: response,
+              );
+            }
+          }
+
           break;
         case DioHttpMethod.POST:
           // Send POST request
           response = await _dio.postUri(uri, data: bodyParam, options: _options(headerParam));
+          dioBaseModel = DioBaseModel<T>(
+            model: response.data,
+            response: response,
+          );
           break;
         case DioHttpMethod.DELETE:
           // Send DELETE request
           response = await _dio.deleteUri(uri, data: bodyParam, options: _options(headerParam));
+          dioBaseModel = DioBaseModel<T>(
+            model: response.data,
+            response: response,
+          );
           break;
         case DioHttpMethod.PUT:
           // Send PUT request
           response = await _dio.putUri(uri, data: bodyParam, options: _options(headerParam));
+          dioBaseModel = DioBaseModel<T>(
+            model: response.data,
+            response: response,
+          );
           break;
         default:
           // Handle unsupported HTTP methods
           throw DioError(requestOptions: RequestOptions(path: pathBody), error: 'Method not found');
       }
-      return response;
+      return dioBaseModel!;
     } catch (e) {
       // Log and throw DioError for failed requests
       logger.e('ERROR => PATH: $pathBody => BODY: $bodyParam', error: e);
       throw DioError(requestOptions: RequestOptions(path: pathBody), error: e.toString());
+    }
+  }
+
+  Future<T> _parseData<T>(dynamic responseData) async {
+    if (T == dynamic || T == String) {
+      return responseData as T;
+    } else if (T == List) {
+      return responseData.map<T>((e) => e as T).toList() as T;
+    } else {
+      return responseData as T;
     }
   }
 
@@ -155,7 +192,7 @@ class DioClient {
   /// ```
   /// Returns a Future<Response?> object
   /// ```dart
-  Future<Response?> request(
+  Future<DioBaseModel<T?>> request<T>(
     DioHttpMethod method,
     String path, {
     Map<String, dynamic> bodyParam = const {},
@@ -163,6 +200,7 @@ class DioClient {
     bool? forceRefresh,
     bool? openThread,
   }) async {
-    return await _sendRequest(method, path, bodyParam, headerParam, forceRefresh, openThread);
+    final response = await _sendRequest<T?>(method, path, bodyParam, headerParam, forceRefresh, openThread);
+    return response;
   }
 }
