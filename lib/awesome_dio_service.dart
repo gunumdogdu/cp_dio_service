@@ -106,7 +106,6 @@ class DioClient {
     Map<String, dynamic> bodyParam,
     Map<String, String>? customHeaderParams,
     bool? forceRefresh,
-    bool? openThread,
   ) async {
     var uri = Uri.https(baseUrl, (pathBody.isNotEmpty ? '/$pathBody' : ''));
     try {
@@ -173,8 +172,7 @@ class DioClient {
     Map<String, dynamic> bodyParam = const {},
     Map<String, String>? headerParam,
     bool? forceRefresh,
-    bool? openThread,
   }) async {
-    return await _sendRequest(method, path, bodyParam, headerParam, forceRefresh, openThread);
+    return await _sendRequest(method, path, bodyParam, headerParam, forceRefresh);
   }
 }
