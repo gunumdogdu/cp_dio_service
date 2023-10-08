@@ -3,6 +3,7 @@
 library cp_dio_client;
 
 import 'dart:io';
+import 'package:cp_dio_client/service/mock_api_service.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_http_cache/dio_http_cache.dart';
 import 'package:logger/logger.dart';
@@ -14,25 +15,31 @@ enum DioHttpMethod { GET, POST, PUT, DELETE, UPDATE }
 class DioClient {
   static DioClient? _instance; // Singleton instance of DioClient
   final String baseUrl; // Base URL of the API
+  final Map<String, dynamic>? headerParam; // Token for authorization
+  final MockApiService mockApiService = MockApiService(); // MockApiService for testing
   final Dio _dio; // Dio instance for making HTTP requests
   final logger = Logger(printer: PrettyPrinter(methodCount: 0)); // Logger for logging requests and responses
 
   // Singleton instance method for DioClient
-  static DioClient instance(
-    String baseUrl, {
+  static DioClient instance({
+    required String baseUrl,
     Function? onUnauthorized,
+    Map<String, dynamic>? headerParam,
   }) {
-    _instance ??= DioClient._internal(baseUrl, onUnauthorized: onUnauthorized);
+    _instance ??= DioClient._internal(
+      baseUrl: baseUrl,
+      onUnauthorized: onUnauthorized,
+      headerParam: headerParam,
+    );
     return _instance!;
   }
 
   // Private constructor for DioClient
-  DioClient._internal(
-    this.baseUrl, {
-    Function? onUnauthorized,
-  }) : _dio = Dio(
+  DioClient._internal({required this.baseUrl, Function? onUnauthorized, this.headerParam})
+      : _dio = Dio(
           BaseOptions(
             baseUrl: baseUrl,
+            headers: headerParam,
             connectTimeout: 30000,
             receiveTimeout: 30000,
           ),
@@ -85,14 +92,19 @@ class DioClient {
   }
 
   // Helper method to create Dio Options with headers
-  Options _options(Map<String, dynamic>? headerParam) => Options(headers: headerParam ?? {});
+  Options _options(Map<String, dynamic>? customHeaderParams) {
+    Map<String, dynamic> headers = {};
+    headers.addAll(customHeaderParams ?? {});
+    headers.addAll(headerParam ?? {});
+    return Options(headers: headers);
+  }
 
   // Method to send HTTP requests based on the specified method
   Future<Response?> _sendRequest(
     DioHttpMethod method,
     String pathBody,
     Map<String, dynamic> bodyParam,
-    Map<String, String>? headerParam,
+    Map<String, String>? customHeaderParams,
     bool? forceRefresh,
     bool? openThread,
   ) async {
@@ -107,21 +119,21 @@ class DioClient {
             options: buildCacheOptions(
               const Duration(days: 7),
               forceRefresh: forceRefresh ?? true,
-              options: _options(headerParam),
+              options: _options(customHeaderParams),
             ),
           );
           break;
         case DioHttpMethod.POST:
           // Send POST request
-          response = await _dio.postUri(uri, data: bodyParam, options: _options(headerParam));
+          response = await _dio.postUri(uri, data: bodyParam, options: _options(customHeaderParams));
           break;
         case DioHttpMethod.DELETE:
           // Send DELETE request
-          response = await _dio.deleteUri(uri, data: bodyParam, options: _options(headerParam));
+          response = await _dio.deleteUri(uri, data: bodyParam, options: _options(customHeaderParams));
           break;
         case DioHttpMethod.PUT:
           // Send PUT request
-          response = await _dio.putUri(uri, data: bodyParam, options: _options(headerParam));
+          response = await _dio.putUri(uri, data: bodyParam, options: _options(customHeaderParams));
           break;
         default:
           // Handle unsupported HTTP methods
