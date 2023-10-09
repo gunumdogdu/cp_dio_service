@@ -10,7 +10,7 @@ import 'package:dio_http_cache/dio_http_cache.dart';
 import 'package:logger/logger.dart';
 
 // Enum to define HTTP methods
-enum DioHttpMethod { GET, POST, PUT, DELETE, UPDATE }
+enum DioHttpMethod { GET, POST, PUT, DELETE, PATCH }
 
 // DioClient class for handling API requests
 class DioClient {
@@ -135,6 +135,10 @@ class DioClient {
         case DioHttpMethod.PUT:
           // Send PUT request
           response = await _dio.putUri(uri, data: bodyParam, options: _options(customHeaderParams));
+          break;
+           case DioHttpMethod.PATCH:
+          // Send PUT request
+          response = await _dio.patchUri(uri, data: bodyParam, options: _options(customHeaderParams));
           break;
         default:
           // Handle unsupported HTTP methods
