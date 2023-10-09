@@ -3,6 +3,7 @@
 library cp_dio_client;
 
 import 'dart:io';
+
 import 'package:cp_dio_client/service/mock_api_service.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_http_cache/dio_http_cache.dart';
@@ -105,9 +106,10 @@ class DioClient {
     String pathBody,
     Map<String, dynamic> bodyParam,
     Map<String, String>? customHeaderParams,
+    Map<String, dynamic>? queryParams,
     bool? forceRefresh,
   ) async {
-    var uri = Uri.https(baseUrl, (pathBody.isNotEmpty ? '/$pathBody' : ''));
+    var uri = Uri.https(baseUrl, (pathBody.isNotEmpty ? '/$pathBody' : ''), queryParams);
     try {
       Response response;
       switch (method) {
@@ -166,13 +168,18 @@ class DioClient {
   /// ```
   /// Returns a Future<Response?> object
   /// ```dart
-  Future<Response?> request(
-    DioHttpMethod method,
-    String path, {
-    Map<String, dynamic> bodyParam = const {},
-    Map<String, String>? headerParam,
-    bool? forceRefresh,
-  }) async {
-    return await _sendRequest(method, path, bodyParam, headerParam, forceRefresh);
+  Future<Response?> request(DioHttpMethod method, String path,
+      {Map<String, dynamic> bodyParam = const {},
+      Map<String, String>? headerParam,
+      bool? forceRefresh,
+      Map<String, dynamic>? queryParams}) async {
+    return await _sendRequest(
+      method,
+      path,
+      bodyParam,
+      headerParam,
+      queryParams,
+      forceRefresh,
+    );
   }
 }
